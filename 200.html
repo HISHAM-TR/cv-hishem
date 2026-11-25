@@ -1,0 +1,2067 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="هشام طرشون | مهندس برمجيات أول ومطور نظم سحابية - محفظة أعمال بهوية الماتريكس البرمجية">
+  <meta name="author" content="هشام طرشون | Hisham Tarchoun">
+  <meta name="theme-color" content="#030705">
+  <title>هشام طرشون | مهندس برمجيات أول [Matrix Edition]</title>
+
+  <!-- Google Fonts: Cairo (Arabic) & JetBrains Mono (Matrix Code) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Three.js (3D WebGL Library) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            cairo: ['Cairo', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace']
+          },
+          colors: {
+            matrix: {
+              black: '#030705',
+              dark: '#06100a',
+              card: '#0a170f',
+              border: '#143320',
+              dim: '#008f39',
+              green: '#00ff66',
+              bright: '#39ff14',
+              glow: '#00ff41'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    :root {
+      --matrix-bg: #030705;
+      --matrix-green: #00ff66;
+      --matrix-glow: #00ff41;
+      --font-cairo: 'Cairo', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * {
+      font-family: var(--font-cairo);
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    code, pre, .font-code {
+      font-family: var(--font-mono) !important;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    /* Matrix Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #030705;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #00ff66;
+      border-radius: 4px;
+      box-shadow: 0 0 10px #00ff66;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #39ff14;
+    }
+
+    /* Matrix Cards & Glow */
+    .matrix-card {
+      background: rgba(10, 23, 15, 0.75);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(0, 255, 102, 0.2);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .matrix-card:hover {
+      border-color: rgba(0, 255, 102, 0.5);
+      box-shadow: 0 0 25px rgba(0, 255, 102, 0.2);
+    }
+
+    .matrix-hud {
+      background: rgba(6, 16, 10, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(0, 255, 102, 0.25);
+    }
+
+    .matrix-text {
+      background: linear-gradient(135deg, #ffffff 0%, #00ff66 50%, #00b347 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .matrix-glow-text {
+      color: #00ff66;
+      text-shadow: 0 0 10px rgba(0, 255, 102, 0.6), 0 0 20px rgba(0, 255, 102, 0.3);
+    }
+
+    .matrix-glow-btn {
+      box-shadow: 0 0 15px rgba(0, 255, 102, 0.35);
+    }
+    .matrix-glow-btn:hover {
+      box-shadow: 0 0 25px rgba(0, 255, 102, 0.6);
+    }
+
+    /* 3D Card Hover / Tilt Setup */
+    .tilt-card {
+      transform-style: preserve-3d;
+      perspective: 1000px;
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
+    }
+
+    /* Cursor Blink Animation */
+    @keyframes matrixBlink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+    .cursor-blink {
+      animation: matrixBlink 0.9s step-start infinite;
+    }
+
+    /* Pulse Aura */
+    @keyframes matrixPulse {
+      0%, 100% { transform: scale(1); opacity: 0.15; }
+      50% { transform: scale(1.1); opacity: 0.28; }
+    }
+    .pulse-matrix {
+      animation: matrixPulse 6s ease-in-out infinite;
+    }
+
+    /* Progress bar animation */
+    .progress-fill {
+      width: 0;
+      transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .progress-fill.active {
+      width: var(--w);
+    }
+
+    /* Admin Inputs */
+    .admin-input {
+      width: 100%;
+      padding: 9px 14px;
+      border-radius: 10px;
+      border: 1px solid rgba(0, 255, 102, 0.25);
+      font-size: 13px;
+      background: #030705;
+      color: #e2e8f0;
+      transition: border-color 0.2s;
+    }
+    .admin-input:focus {
+      border-color: #00ff66;
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(0, 255, 102, 0.25);
+    }
+
+    .admin-tab {
+      padding: 7px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .admin-tab.active {
+      background: #00ff66;
+      color: #030705;
+      font-weight: bold;
+      box-shadow: 0 0 12px rgba(0, 255, 102, 0.5);
+    }
+    .admin-tab:not(.active) {
+      background: rgba(255, 255, 255, 0.05);
+      color: #94a3b8;
+    }
+  </style>
+</head>
+<body class="bg-matrix-black text-slate-200 transition-colors duration-300 selection:bg-matrix-green selection:text-black overflow-x-hidden">
+
+<div id="root"></div>
+
+<!-- React 18 & HTM (Zero build dependencies, runs natively everywhere) -->
+<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin=""></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin=""></script>
+<script src="https://unpkg.com/htm@3.1.1/dist/htm.js"></script>
+
+<script>
+/* Source Capture for Auto-Persistence */
+var _SRC = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+var SS = {
+  g: function(k) { try { return localStorage.getItem(k); } catch(e) { return null; } },
+  s: function(k, v) { try { localStorage.setItem(k, v); } catch(e) {} }
+};
+var h = htm.bind(React.createElement);
+var uS = React.useState, uE = React.useEffect, uR = React.useRef;
+
+/* Web Audio Synthesizer (Zero External Assets) */
+var SoundEngine = (function(){
+  var ctx = null;
+  var enabled = false;
+  function init(){
+    if(!ctx && (window.AudioContext || window.webkitAudioContext)){
+      ctx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+  }
+  return {
+    toggle: function(){
+      init();
+      enabled = !enabled;
+      if(enabled && ctx && ctx.state === 'suspended') ctx.resume();
+      return enabled;
+    },
+    isEnabled: function(){ return enabled; },
+    playTone: function(freq, type, dur){
+      if(!enabled || !ctx) return;
+      try {
+        var osc = ctx.createOscillator();
+        var gain = ctx.createGain();
+        osc.type = type || 'sine';
+        osc.frequency.setValueAtTime(freq || 520, ctx.currentTime);
+        gain.gain.setValueAtTime(0.04, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + (dur || 0.12));
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + (dur || 0.12));
+      } catch(e) {}
+    },
+    click: function(){ this.playTone(880, 'triangle', 0.04); },
+    success: function(){
+      var self = this;
+      this.playTone(587.33, 'sine', 0.08);
+      setTimeout(function(){ self.playTone(880, 'sine', 0.1); }, 70);
+    }
+  };
+})();
+
+/*__DEF_START__*/
+var DEF = {
+  "name": "هشام طرشون",
+  "enName": "Hisham Tarchoun",
+  "title": "مهندس برمجيات أول ومطور نظم سحابية ثلاثية الأبعاد",
+  "subTitle": "Senior Full-Stack Software Engineer & Cloud Architect",
+  "statusBadge": "● SYSTEM_STATUS: OPERATIONAL_AVAILABLE",
+  "img": "https://i.pinimg.com/736x/5f/1c/17/5f1c179bbfa5a42cbdeb8550b880871f.jpg",
+  "intro": "مهندس برمجيات شغوف بتطوير الأنظمة السحابية الموزعة عالية الأداء، وتصميم تجارب ويب استثنائية ثلاثية الأبعاد. أدمج بين دقة المعمارية البرمجية والسرعة الفائقة لتقديم حلول تقنية متينة وقابلة للتوسع.",
+  "about1": "أمتلك خبرة تفوق 5 سنوات في هندسة الحلول البرمجية المتكاملة، وتصميم معماريات الميكروسيرفس والبنى التحتية السحابية. شاركت في قيادة مشاريع معقدة تخدم آلاف المستخدمين بكفاءة وأمان عالي.",
+  "about2": "أركز على الممارسات الهندسية النظيفة (Clean Code)، الأتمتة الكاملة (CI/CD)، والاختبارات الدقيقة لضمان أعلى مستويات الاستقرار. أؤمن بأن البرمجة المتقنة هي جسر تحويل الأفكار المعقدة إلى منتجات رقمية سهلة وسلسة.",
+  "edu": "بكالوريوس علوم الحاسب وهندسة البرمجيات - جامعة الملك سعود (مرتبة الشرف)",
+  "loc": "الرياض، المملكة العربية السعودية",
+  "goal": "قيادة هندسة منصات الجيل القادم للحوسبة السحابية والتجارب ثلاثية الأبعاد",
+  "st": [
+    { "v": 5, "l": "سنوات خبرة برمجية", "s": "+" },
+    { "v": 45, "l": "مشروع وميكروسيرفس منجز", "s": "+" },
+    { "v": 99.98, "l": "معدل استقرار وتوفر الأنظمة", "s": "%" },
+    { "v": 150, "l": "ألف سطر كود نظيف ومختبر", "s": "k+" }
+  ],
+  "ts": [
+    { "n": "React 18 & Next.js 14", "v": 96, "cat": "Frontend", "desc": "Server Components, App Router, Hooks, State Engines" },
+    { "n": "Three.js & WebGL 3D", "v": 90, "cat": "3D & Creative", "desc": "Custom Shaders, 3D Scenes, Physics, Canvas Optimization" },
+    { "n": "TypeScript / JavaScript ESNext", "v": 95, "cat": "Frontend", "desc": "Strict Typing, Generics, AST, Clean Design Patterns" },
+    { "n": "Node.js & Go (Golang)", "v": 92, "cat": "Backend", "desc": "High-throughput microservices, Goroutines, Concurrency" },
+    { "n": "Python & FastAPI (AI/ML)", "v": 88, "cat": "Backend", "desc": "Vector Search, Async APIs, AI Integrations, Embeddings" },
+    { "n": "Docker & Kubernetes", "v": 89, "cat": "DevOps", "desc": "Containerization, Cluster Orchestration, Helm Charts" },
+    { "n": "PostgreSQL & Redis Caching", "v": 93, "cat": "Database", "desc": "Complex Queries, Sharding, In-Memory Caching" },
+    { "n": "AWS Cloud Architecture", "v": 87, "cat": "DevOps", "desc": "Lambda, ECS, S3, CloudFront, Infrastructure as Code" }
+  ],
+  "ss": [
+    { "n": "هندسة النظم وحل المعضلات", "d": "تحليل وتفكيك المشكلات المعقدة وصياغة حلول برمجية ذكية وسريعة.", "i": "target" },
+    { "n": "القيادة التقنية وإدارة الفريق", "d": "توجيه المطورين، مراجعة الأكواد، وبناء معايير معمارية عالية الجودة.", "i": "users" },
+    { "n": "تحسين الأداء والأمان العالي", "d": "تقليل زمن الاستجابة، وتسريع تحميل الواجهات مع تطبيق معايير الأمان المتقدمة.", "i": "zap" },
+    { "n": "الابتكار والتجارب ثلاثية الأبعاد", "d": "دمج تقنيات الـ 3D والحركات الانسيابية لخلق منتجات رقمية فريدة ومؤثرة.", "i": "sparkles" }
+  ],
+  "_v": 2,
+  "pj": [
+    {
+      "t": "PG Store - متجر التجارة الإلكترونية والمنتجات الرقمية",
+      "d": "متجر إلكتروني متكامل للسلع والمنتجات الرقمية والاشتراكات، يتميز بتجربة تسوق سريعة، إدارة ذكية للمخزون والطلبات، وبوابات دفع إلكترونية آمنة وموثوقة.",
+      "tg": "E-Commerce, Next.js, Node.js, Payment Gateway, PostgreSQL, Tailwind",
+      "metric": "Live Production | High Conversion",
+      "badge": "E-Commerce Live",
+      "demo": "https://pgstor.com/",
+      "repo": "https://github.com/hisham-tr"
+    },
+    {
+      "t": "Audio Studio Manager - نظام إدارة مهام استوديو الصوتيات",
+      "d": "منصة سحابية متخصصة لإدارة ومتابعة مهام استوديوهات الإنتاج الصوتي، تتبع مسارات التسجيل والمكساج والماسترينغ، توزيع المهام على مهندسي الصوت، والتحكم بجدول التسليمات.",
+      "tg": "React, TypeScript, Audio Workflow, Task Pipeline, REST API, Tailwind",
+      "metric": "Studio Workflow | Multi-Engineer Sync",
+      "badge": "Audio Studio Live",
+      "demo": "https://studio.basmatandalusia.cc/",
+      "repo": "https://github.com/hisham-tr"
+    },
+    {
+      "t": "LibraryHub - منصة إدارة المكتبات والفهرسة الذكية للكتب",
+      "d": "نظام سحابي شامل لإدارة المكتبات المركزية والمكتبات الرقمية، أتمتة دورة استعارة الكتب وإعادتها، نظام الفهرسة والتصنيف المتقدم، ومحرك بحث ذكي لتسهيل وصول القراء للكتب.",
+      "tg": "Next.js, Node.js, PostgreSQL, Full-Text Search, Redis, Docker",
+      "metric": "Smart Indexing | Book Circulation System",
+      "badge": "Enterprise System",
+      "demo": "https://github.com/hisham-tr",
+      "repo": "https://github.com/hisham-tr"
+    },
+    {
+      "t": "NexusCloud - منصة الحوسبة السحابية الموزعة",
+      "d": "نظام موزع لإدارة ومراقبة الخدمات السحابية ومعالجة البيانات الفورية لأكثر من 50,000 طلب/ثانية بزمن استجابة أقل من 20ms.",
+      "tg": "Go, Node.js, Kubernetes, Redis, React, Docker",
+      "metric": "50K+ Req/s | 99.99% Uptime",
+      "badge": "Enterprise Cloud",
+      "demo": "https://github.com/hisham-tr",
+      "repo": "https://github.com/hisham-tr"
+    },
+    {
+      "t": "PulseAI - محرك التحليلات التنبؤية بالذكاء الاصطناعي",
+      "d": "منصة تحليلات ذكية تستخدم نماذج التعلم الآلي للتنبؤ بسلوك العملاء واكتشاف الأعطال في الأنظمة البرمجية قبل حدوثها.",
+      "tg": "Python, FastAPI, Vector DB, React, Chart.js",
+      "metric": "AI Predictor | 98.4% Accuracy",
+      "badge": "AI & Big Data",
+      "demo": "https://github.com/hisham-tr",
+      "repo": "https://github.com/hisham-tr"
+    },
+    {
+      "t": "SecureVault - نظام إدارة الهوية والتشفير السحابي",
+      "d": "منصة أمان مؤسسية متقدمة مبنية على معايير Zero-Trust، مع تشفير البيانات المتعدد AES-256، ونظام OAuth2/OIDC متكامل.",
+      "tg": "C#, ASP.NET Core, OAuth2, Redis, SQL Server",
+      "metric": "Zero-Trust | Military-Grade Crypto",
+      "badge": "Cyber Security",
+      "demo": "https://github.com/hisham-tr",
+      "repo": "https://github.com/hisham-tr"
+    }
+  ],
+  "ce": [
+    { "t": "AWS Certified Solutions Architect", "is": "Amazon Web Services (AWS)", "dt": "2024" },
+    { "t": "Meta Senior Full-Stack Engineer", "is": "Meta (Coursera)", "dt": "2024" },
+    { "t": "Docker & Kubernetes Certified Architect", "is": "Linux Foundation", "dt": "2023" },
+    { "t": "Advanced Distributed Systems & Microservices", "is": "MIT OpenCourseWare", "dt": "2023" }
+  ],
+  "ex": [
+    {
+      "t": "مهندس برمجيات أول وقائد معماري (Lead Software Engineer)",
+      "o": "مجموعة تقنية رائدة - الرياض",
+      "dt": "2023 - حتى الآن",
+      "d": "قيادة هندسة وتطوير الأنظمة السحابية الموزعة، الإشراف على معمارية الميكروسيرفس، خفض زمن استجابة الـ API بنسبة 65%، وتوجيه فريق مكوّن من 8 مطورين.",
+      "tech": "Go, React, Node.js, Kubernetes, AWS"
+    },
+    {
+      "t": "مطور واجهات تفاعلية وأنظمة ويب متقدمة",
+      "o": "استوديو حلول رقمية مبتكر",
+      "dt": "2021 - 2023",
+      "d": "تصميم وتطوير واجهات المستخدم التفاعلية باستخدام Three.js و React، وبناء لوحات تحكم ديناميكية لمعالجة البيانات مع أداء فائق.",
+      "tech": "React, Three.js, TypeScript, Tailwind"
+    },
+    {
+      "t": "بكالوريوس علوم الحاسب وهندسة البرمجيات",
+      "o": "جامعة الملك سعود - كلية علوم الحاسب",
+      "dt": "2019 - 2023",
+      "d": "تخرج بمرتبة الشرف مع التركيز على هياكل البيانات المتقدمة، الخوارزميات، نظرية الحوسبة الموزعة، والذكاء الاصطناعي.",
+      "tech": "Algorithms, Distributed Systems, Networks"
+    }
+  ],
+  "ci": [
+    { "i": "mail", "l": "البريد الإلكتروني", "v": "hichemmadina@gmail.com", "h": "mailto:hichemmadina@gmail.com" },
+    { "i": "phone", "l": "الهاتف المباشر", "v": "+966549876907", "h": "tel:+966549876907" },
+    { "i": "mapPin", "l": "المقر الحالي", "v": "الرياض، المملكة العربية السعودية", "h": null },
+    { "i": "github", "l": "حساب GitHub", "v": "github.com/hisham-tr", "h": "https://github.com/hisham-tr" }
+  ]
+};
+/*__DEF_END__*/
+
+/* SHA-256 for Admin Auth */
+var AUTH = {
+  u: '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918', // admin
+  p: '240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9'  // admin123
+};
+
+function hsh(s) {
+  return crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)).then(function(b) {
+    return Array.from(new Uint8Array(b)).map(function(x) { return x.toString(16).padStart(2, '0'); }).join('');
+  });
+}
+
+/* Intersection Observer Hook */
+function uIV(th) {
+  var r = uR(null), vs = uS(false);
+  uE(function() {
+    var el = r.current;
+    if (!el) return;
+    var ob = new IntersectionObserver(function(en) {
+      if (en[0].isIntersecting) {
+        vs[1](true);
+        ob.unobserve(el);
+      }
+    }, { threshold: th || 0.15 });
+    ob.observe(el);
+    return function() { ob.disconnect(); };
+  }, []);
+  return [r, vs[0]];
+}
+
+/* Counter Animation Hook */
+function uCT(tg, dr, ac) {
+  var vs = uS(0);
+  var tR = uR(tg), aR = uR(ac);
+  tR.current = tg; aR.current = ac;
+  uE(function() {
+    if (!aR.current) return;
+    var start = 0;
+    var dur = dr || 1400;
+    var startTime = performance.now();
+    function tick(now) {
+      var elapsed = now - startTime;
+      var prog = Math.min(elapsed / dur, 1);
+      var ease = 1 - Math.pow(1 - prog, 3);
+      var cur = start + (tR.current - start) * ease;
+      if (prog < 1) {
+        vs[1](Math.floor(cur * 10) / 10);
+        requestAnimationFrame(tick);
+      } else {
+        vs[1](tR.current);
+      }
+    }
+    requestAnimationFrame(tick);
+  }, [ac]);
+  return vs[0];
+}
+
+/* Icons Component (Pure SVG) */
+function Ic(p) {
+  var n = p.name, s = p.size || 20, c = p.className || '', sw = p.sw || 2;
+  var b = { width: s, height: s, className: c, fill: 'none', stroke: 'currentColor', strokeWidth: sw, strokeLinecap: 'round', strokeLinejoin: 'round', viewBox: '0 0 24 24' };
+  var g = null;
+  if (n === 'home') g = h`<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>`;
+  else if (n === 'user') g = h`<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>`;
+  else if (n === 'code') g = h`<polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>`;
+  else if (n === 'server') g = h`<rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/>`;
+  else if (n === 'sparkles') g = h`<path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/>`;
+  else if (n === 'briefcase') g = h`<rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>`;
+  else if (n === 'award') g = h`<circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/>`;
+  else if (n === 'mail') g = h`<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>`;
+  else if (n === 'phone') g = h`<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.81.36 1.6.68 2.34a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.74.32 1.53.55 2.34.68a2 2 0 0 1 1.72 2.01z"/>`;
+  else if (n === 'mapPin') g = h`<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>`;
+  else if (n === 'send') g = h`<line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>`;
+  else if (n === 'checkCircle') g = h`<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>`;
+  else if (n === 'zap') g = h`<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>`;
+  else if (n === 'target') g = h`<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>`;
+  else if (n === 'users') g = h`<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>`;
+  else if (n === 'settings') g = h`<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>`;
+  else if (n === 'externalLink') g = h`<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>`;
+  else if (n === 'volume2') g = h`<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/>`;
+  else if (n === 'volumeX') g = h`<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>`;
+  else if (n === 'menu') g = h`<line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>`;
+  else if (n === 'x') g = h`<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>`;
+  else if (n === 'github') return h`<svg width=${s} height=${s} className=${c} viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.44 9.8 8.21 11.39.6.11.79-.26.79-.58v-2.23c-3.34.73-4.03-1.41-4.03-1.41-.55-1.39-1.33-1.76-1.33-1.76-1.09-.75.08-.73.08-.73 1.2.08 1.84 1.24 1.84 1.24 1.07 1.83 2.81 1.3 3.49 1 .11-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.13-.3-.54-1.52.12-3.18 0 0 1.01-.32 3.3 1.23.96-.27 1.98-.4 3-.41 1.02.01 2.04.14 3 .41 2.28-1.55 3.29-1.23 3.29-1.23.66 1.66.25 2.88.12 3.18.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.63-5.48 5.93.43.37.81 1.1.81 2.22v3.29c0 .32.19.69.8.58C20.57 21.8 24 17.31 24 12c0-6.63-5.37-12-12-12z"/></svg>`;
+  if (!g) return null;
+  return h`<svg ...${b}>${g}</svg>`;
+}
+
+/* ========================================================
+   Matrix Digital Rain Canvas Background
+   ======================================================== */
+function MatrixRain(p) {
+  var canvasRef = uR(null);
+  uE(function() {
+    var canvas = canvasRef.current;
+    if (!canvas) return;
+    var ctx = canvas.getContext('2d');
+    var w = canvas.width = window.innerWidth;
+    var h = canvas.height = window.innerHeight;
+
+    // Mixture of Arabic letters/numerals + English Code & Matrix symbols
+    var chars = 'ابتثجحخدذرزسشصضطظعغفقكلمنهوي٠١٢٣٤٥٦٧٨٩' + 
+                '0123456789ABCDEF{}[]<>=/\\+*~;:$#_!@λπ' + 
+                'constletvarreturnfunctionasyncawait';
+    var fontSize = 14;
+    var columns = Math.floor(w / fontSize);
+    var drops = [];
+    for (var i = 0; i < columns; i++) {
+      drops[i] = Math.random() * -100;
+    }
+
+    var animId;
+    var lastTime = 0;
+    var fpsInterval = 1000 / 28; // ~28 FPS for smooth, slower cinematic matrix rain
+
+    function draw(currentTime) {
+      animId = requestAnimationFrame(draw);
+
+      var elapsed = currentTime - lastTime;
+      if (elapsed < fpsInterval) return;
+      lastTime = currentTime - (elapsed % fpsInterval);
+
+      ctx.fillStyle = 'rgba(3, 7, 5, 0.08)';
+      ctx.fillRect(0, 0, w, h);
+
+      ctx.font = fontSize + 'px "Cairo", "JetBrains Mono", monospace';
+
+      for (var i = 0; i < drops.length; i++) {
+        var text = chars[Math.floor(Math.random() * chars.length)];
+        var x = i * fontSize;
+        var y = Math.floor(drops[i]) * fontSize;
+
+        ctx.fillStyle = (drops[i] > 1 && Math.random() > 0.88) ? '#ffffff' : '#00ff66';
+        ctx.fillText(text, x, y);
+
+        if (y > h && Math.random() > 0.985) {
+          drops[i] = 0;
+        }
+        drops[i] += 0.55; // Slower, graceful matrix flow
+      }
+    }
+    animId = requestAnimationFrame(draw);
+
+    function onResize() {
+      if (!canvas) return;
+      w = canvas.width = window.innerWidth;
+      h = canvas.height = window.innerHeight;
+      columns = Math.floor(w / fontSize);
+      drops = [];
+      for (var i = 0; i < columns; i++) {
+        drops[i] = Math.random() * -50;
+      }
+    }
+    window.addEventListener('resize', onResize);
+
+    return function() {
+      cancelAnimationFrame(animId);
+      window.removeEventListener('resize', onResize);
+    };
+  }, []);
+
+  return h`<canvas ref=${canvasRef} className="fixed inset-0 pointer-events-none z-0 opacity-22"></canvas>`;
+}
+
+/* ========================================================
+   3D Matrix Cyber Server & Realtime Data Highway (Three.js WebGL)
+   ======================================================== */
+function Matrix3DCore() {
+  var mountRef = uR(null);
+  var speedModeS = uS('turbo'); // 'normal' | 'turbo'
+  var speedMode = speedModeS[0], setSpeedMode = speedModeS[1];
+  var wireframeS = uS(false);
+  var wireframe = wireframeS[0], setWireframe = wireframeS[1];
+
+  // Dynamic Telemetry State (requests/s, ping, bandwidth in/out)
+  var statsS = uS({ inSpeed: '84.6', outSpeed: '142.8', req: '16,420', ping: '12' });
+  var stats = statsS[0], setStats = statsS[1];
+
+  // Update telemetry periodically
+  uE(function() {
+    var timer = setInterval(function() {
+      var mult = speedMode === 'turbo' ? 1.6 : 1.0;
+      var inVal = (75 + Math.random() * 20 * mult).toFixed(1);
+      var outVal = (125 + Math.random() * 30 * mult).toFixed(1);
+      var reqVal = Math.floor((14500 + Math.random() * 4500) * mult).toLocaleString('en-US');
+      var pingVal = Math.floor(9 + Math.random() * 6);
+      setStats({ inSpeed: inVal, outSpeed: outVal, req: reqVal, ping: pingVal });
+    }, 1200);
+    return function() { clearInterval(timer); };
+  }, [speedMode]);
+
+  uE(function() {
+    var container = mountRef.current;
+    if (!container || typeof THREE === 'undefined') return;
+
+    var w = container.clientWidth || 360;
+    var h = container.clientHeight || 420;
+
+    var scene = new THREE.Scene();
+    var camera = new THREE.PerspectiveCamera(45, w / h, 0.1, 1000);
+    camera.position.set(11, 7, 21);
+    camera.lookAt(0, 0, 0);
+
+    var renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: 'high-performance' });
+    renderer.setSize(w, h);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    container.innerHTML = '';
+    container.appendChild(renderer.domElement);
+
+    var rootGroup = new THREE.Group();
+    scene.add(rootGroup);
+
+    // Initial slight tilt for aesthetic isometric angle
+    rootGroup.rotation.y = 0.55;
+    rootGroup.rotation.x = 0.15;
+
+    // --- 1. SERVER RACK ASSEMBLY ---
+    var serverGroup = new THREE.Group();
+    rootGroup.add(serverGroup);
+
+    // Rack Outer Cabinet Glass & Neon Frame
+    var cabinetMat = new THREE.MeshBasicMaterial({
+      color: 0x020d06,
+      transparent: true,
+      opacity: wireframe ? 0.2 : 0.82
+    });
+    var cabinetMesh = new THREE.Mesh(new THREE.BoxGeometry(5.6, 9.8, 4.4), cabinetMat);
+    serverGroup.add(cabinetMesh);
+
+    // Outer Neon Edge Wireframe
+    var rackEdgeGeo = new THREE.EdgesGeometry(new THREE.BoxGeometry(5.62, 9.82, 4.42));
+    var rackEdgeMat = new THREE.LineBasicMaterial({ color: 0x00ff66, transparent: true, opacity: 0.65 });
+    var rackEdges = new THREE.LineSegments(rackEdgeGeo, rackEdgeMat);
+    serverGroup.add(rackEdges);
+
+    // 4 Corner Metal Pillars
+    var pillarGeo = new THREE.BoxGeometry(0.22, 10.1, 0.22);
+    var pillarMat = new THREE.MeshBasicMaterial({ color: 0x00ff88 });
+    var pPositions = [
+      [-2.8, 0, -2.2],
+      [2.8, 0, -2.2],
+      [-2.8, 0, 2.2],
+      [2.8, 0, 2.2]
+    ];
+    pPositions.forEach(function(pos) {
+      var p = new THREE.Mesh(pillarGeo, pillarMat);
+      p.position.set(pos[0], pos[1], pos[2]);
+      serverGroup.add(p);
+    });
+
+    // Top & Bottom Cap Plates
+    var plateGeo = new THREE.BoxGeometry(5.9, 0.25, 4.7);
+    var plateMat = new THREE.MeshBasicMaterial({ color: 0x051a0d });
+    var topPlate = new THREE.Mesh(plateGeo, plateMat);
+    topPlate.position.y = 5.0;
+    var btmPlate = new THREE.Mesh(plateGeo, plateMat);
+    btmPlate.position.y = -5.0;
+    serverGroup.add(topPlate);
+    serverGroup.add(btmPlate);
+
+    // 4 Server Blades (Units)
+    var bladeGeo = new THREE.BoxGeometry(5.1, 1.8, 4.1);
+    var bladeMat = new THREE.MeshBasicMaterial({ color: 0x041108 });
+    var bladeEdgeGeo = new THREE.EdgesGeometry(bladeGeo);
+    var bladeEdgeMat = new THREE.LineBasicMaterial({ color: 0x00ff55, transparent: true, opacity: 0.4 });
+
+    var leds = [];
+    for (var b = 0; b < 4; b++) {
+      var by = -3.45 + b * 2.3;
+      var blade = new THREE.Mesh(bladeGeo, bladeMat);
+      blade.position.y = by;
+      serverGroup.add(blade);
+
+      var bEdges = new THREE.LineSegments(bladeEdgeGeo, bladeEdgeMat);
+      bEdges.position.y = by;
+      serverGroup.add(bEdges);
+
+      // Server Front Face Vent Lines
+      for (var v = 0; v < 3; v++) {
+        var ventLineGeo = new THREE.BufferGeometry().setFromPoints([
+          new THREE.Vector3(-0.8, by - 0.4 + v * 0.4, 2.1),
+          new THREE.Vector3(2.1, by - 0.4 + v * 0.4, 2.1)
+        ]);
+        var ventLine = new THREE.Line(ventLineGeo, new THREE.LineBasicMaterial({ color: 0x00ff66, transparent: true, opacity: 0.25 }));
+        serverGroup.add(ventLine);
+      }
+
+      // Power LED (Solid Bright Green)
+      var pwrLedGeo = new THREE.SphereGeometry(0.07, 8, 8);
+      var pwrLed = new THREE.Mesh(pwrLedGeo, new THREE.MeshBasicMaterial({ color: 0x00ff41 }));
+      pwrLed.position.set(-2.2, by + 0.45, 2.1);
+      serverGroup.add(pwrLed);
+
+      // Activity LEDs (flickering disk / network activity)
+      for (var l = 0; l < 4; l++) {
+        var aLedMat = new THREE.MeshBasicMaterial({ color: 0x00ff66 });
+        var aLed = new THREE.Mesh(new THREE.SphereGeometry(0.055, 6, 6), aLedMat);
+        aLed.position.set(-1.9 + l * 0.26, by + 0.45, 2.1);
+        serverGroup.add(aLed);
+        leds.push({ mesh: aLed, baseColor: l % 2 === 0 ? 0x00ff66 : 0x00e5ff });
+      }
+    }
+
+    // Glowing Central Data Bus / Core (Pulsing vertically)
+    var coreGeo = new THREE.CylinderGeometry(0.35, 0.35, 8.8, 12);
+    var coreMat = new THREE.MeshBasicMaterial({ color: 0x00ff88, transparent: true, opacity: 0.6, wireframe: true });
+    var coreMesh = new THREE.Mesh(coreGeo, coreMat);
+    serverGroup.add(coreMesh);
+
+    // Glowing Input/Output Port Rings on Sides
+    var inPortGeo = new THREE.RingGeometry(0.35, 0.55, 16);
+    var inPortMat = new THREE.MeshBasicMaterial({ color: 0x00ff66, side: THREE.DoubleSide });
+    var inPort = new THREE.Mesh(inPortGeo, inPortMat);
+    inPort.position.set(-2.82, 0.8, 0);
+    inPort.rotation.y = Math.PI / 2;
+    serverGroup.add(inPort);
+
+    var outPortGeo = new THREE.RingGeometry(0.35, 0.55, 16);
+    var outPortMat = new THREE.MeshBasicMaterial({ color: 0x00e5ff, side: THREE.DoubleSide });
+    var outPort = new THREE.Mesh(outPortGeo, outPortMat);
+    outPort.position.set(2.82, -0.8, 0);
+    outPort.rotation.y = Math.PI / 2;
+    serverGroup.add(outPort);
+
+    // Ground Cyber Ring & Base Grid
+    var groundGroup = new THREE.Group();
+    groundGroup.position.y = -5.4;
+    groundGroup.rotation.x = -Math.PI / 2;
+    rootGroup.add(groundGroup);
+
+    var ring1 = new THREE.Mesh(new THREE.RingGeometry(3.6, 3.75, 32), new THREE.MeshBasicMaterial({ color: 0x00ff66, transparent: true, opacity: 0.4, side: THREE.DoubleSide }));
+    var ring2 = new THREE.Mesh(new THREE.RingGeometry(5.2, 5.35, 48), new THREE.MeshBasicMaterial({ color: 0x00ff88, transparent: true, opacity: 0.25, side: THREE.DoubleSide }));
+    groundGroup.add(ring1);
+    groundGroup.add(ring2);
+
+    // --- 2. 3D DATA STREAMS (IN & OUT) ---
+    // Inbound Spline Curve (Entering Server Intake)
+    var curveIn = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(-14, 6.5, -4.5),
+      new THREE.Vector3(-9.5, 4.2, -2),
+      new THREE.Vector3(-5.5, 2.2, 0),
+      new THREE.Vector3(-2.8, 0.8, 0)
+    ]);
+
+    // Outbound Spline Curve (Emerging from Server Output)
+    var curveOut = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(2.8, -0.8, 0),
+      new THREE.Vector3(5.8, -2.2, 1.5),
+      new THREE.Vector3(9.5, -4.2, 3.5),
+      new THREE.Vector3(14, -6.5, 5.5)
+    ]);
+
+    // Conduit Lines (Light Pathways)
+    var inConduitGeo = new THREE.BufferGeometry().setFromPoints(curveIn.getPoints(70));
+    var inConduitMat = new THREE.LineBasicMaterial({ color: 0x00ff66, transparent: true, opacity: 0.4 });
+    var inConduitLine = new THREE.Line(inConduitGeo, inConduitMat);
+    rootGroup.add(inConduitLine);
+
+    var outConduitGeo = new THREE.BufferGeometry().setFromPoints(curveOut.getPoints(70));
+    var outConduitMat = new THREE.LineBasicMaterial({ color: 0x00e5ff, transparent: true, opacity: 0.4 });
+    var outConduitLine = new THREE.Line(outConduitGeo, outConduitMat);
+    rootGroup.add(outConduitLine);
+
+    // Data Inbound Packets (Streaming Into Server)
+    var inPacketCount = 18;
+    var inPackets = [];
+    var inPacketGeo = new THREE.BoxGeometry(0.24, 0.24, 0.42);
+    var inPacketMat = new THREE.MeshBasicMaterial({ color: 0x39ff14 });
+    for (var ip = 0; ip < inPacketCount; ip++) {
+      var pMeshIn = new THREE.Mesh(inPacketGeo, inPacketMat);
+      rootGroup.add(pMeshIn);
+      inPackets.push({
+        mesh: pMeshIn,
+        offset: ip / inPacketCount
+      });
+    }
+
+    // Data Outbound Packets (Streaming Out of Server)
+    var outPacketCount = 18;
+    var outPackets = [];
+    var outPacketGeo = new THREE.BoxGeometry(0.24, 0.24, 0.42);
+    var outPacketMat = new THREE.MeshBasicMaterial({ color: 0x00ffff });
+    for (var op = 0; op < outPacketCount; op++) {
+      var pMeshOut = new THREE.Mesh(outPacketGeo, outPacketMat);
+      rootGroup.add(pMeshOut);
+      outPackets.push({
+        mesh: pMeshOut,
+        offset: op / outPacketCount
+      });
+    }
+
+    // Ambient Cyberspace Particles
+    var pCount = 350;
+    var pGeo = new THREE.BufferGeometry();
+    var posArr = new Float32Array(pCount * 3);
+    for (var pi = 0; pi < pCount * 3; pi += 3) {
+      posArr[pi] = (Math.random() - 0.5) * 32;
+      posArr[pi + 1] = (Math.random() - 0.5) * 24;
+      posArr[pi + 2] = (Math.random() - 0.5) * 24;
+    }
+    pGeo.setAttribute('position', new THREE.BufferAttribute(posArr, 3));
+    var pMat = new THREE.PointsMaterial({
+      size: 0.16,
+      color: 0x00ff88,
+      transparent: true,
+      opacity: 0.65
+    });
+    var particles = new THREE.Points(pGeo, pMat);
+    rootGroup.add(particles);
+
+    // --- 3. MOUSE & TOUCH CONTROLS ---
+    var mouseX = 0, mouseY = 0;
+    var isDragging = false;
+    var lastPos = { x: 0, y: 0 };
+
+    function handleStart(cx, cy) {
+      isDragging = true;
+      lastPos = { x: cx, y: cy };
+      SoundEngine.click();
+    }
+    function handleMove(cx, cy) {
+      var rect = container.getBoundingClientRect();
+      var rx = (cx - rect.left) / rect.width - 0.5;
+      var ry = (cy - rect.top) / rect.height - 0.5;
+      mouseX = rx * 2;
+      mouseY = ry * 2;
+      if (isDragging) {
+        var dx = cx - lastPos.x;
+        var dy = cy - lastPos.y;
+        rootGroup.rotation.y += dx * 0.008;
+        rootGroup.rotation.x += dy * 0.008;
+        rootGroup.rotation.x = Math.max(-0.6, Math.min(0.6, rootGroup.rotation.x));
+        lastPos = { x: cx, y: cy };
+      }
+    }
+    function handleEnd() {
+      isDragging = false;
+    }
+
+    function onMouseMove(e) { handleMove(e.clientX, e.clientY); }
+    function onMouseDown(e) { handleStart(e.clientX, e.clientY); }
+    function onMouseUp() { handleEnd(); }
+
+    function onTouchStart(e) {
+      if (e.touches && e.touches[0]) handleStart(e.touches[0].clientX, e.touches[0].clientY);
+    }
+    function onTouchMove(e) {
+      if (e.touches && e.touches[0]) handleMove(e.touches[0].clientX, e.touches[0].clientY);
+    }
+    function onTouchEnd() { handleEnd(); }
+
+    container.addEventListener('mousemove', onMouseMove);
+    container.addEventListener('mousedown', onMouseDown);
+    window.addEventListener('mouseup', onMouseUp);
+    container.addEventListener('touchstart', onTouchStart, { passive: true });
+    container.addEventListener('touchmove', onTouchMove, { passive: true });
+    window.addEventListener('touchend', onTouchEnd);
+
+    function onResize() {
+      if (!container) return;
+      var nw = container.clientWidth;
+      var nh = container.clientHeight;
+      camera.aspect = nw / nh;
+      camera.updateProjectionMatrix();
+      renderer.setSize(nw, nh);
+    }
+    window.addEventListener('resize', onResize);
+
+    // --- 4. ANIMATION LOOP ---
+    var reqId;
+    var clock = new THREE.Clock();
+    var packetProgress = 0;
+
+    function animate() {
+      reqId = requestAnimationFrame(animate);
+      var delta = clock.getDelta();
+      var spdMult = speedMode === 'turbo' ? 2.2 : 1.0;
+
+      // Gentle auto-rotation when not interacting
+      if (!isDragging) {
+        rootGroup.rotation.y += 0.08 * delta;
+      }
+
+      // Slow ground ring rotation
+      groundGroup.rotation.z += 0.15 * delta;
+
+      // Pulsing internal core
+      var pulse = Math.sin(clock.getElapsedTime() * (speedMode === 'turbo' ? 6 : 3)) * 0.15 + 0.55;
+      coreMat.opacity = pulse;
+
+      // Flicker activity LEDs
+      if (Math.random() < (speedMode === 'turbo' ? 0.35 : 0.18)) {
+        var targetLed = leds[Math.floor(Math.random() * leds.length)];
+        if (targetLed) {
+          var isBright = Math.random() > 0.3;
+          targetLed.mesh.material.color.setHex(isBright ? targetLed.baseColor : 0x00240e);
+        }
+      }
+
+      // Stream Inbound Packets (along curveIn)
+      packetProgress += 0.32 * spdMult * delta;
+      inPackets.forEach(function(item) {
+        var t = (item.offset + packetProgress) % 1.0;
+        var pt = curveIn.getPointAt(t);
+        var tgt = curveIn.getTangentAt(t);
+        item.mesh.position.copy(pt);
+        item.mesh.lookAt(pt.clone().add(tgt));
+
+        var sc = t < 0.1 ? (t / 0.1) : (t > 0.88 ? (1.0 - t) / 0.12 : 1.0);
+        item.mesh.scale.set(sc, sc, sc * 1.5);
+      });
+
+      // Stream Outbound Packets (along curveOut)
+      outPackets.forEach(function(item) {
+        var t = (item.offset + packetProgress * 1.15) % 1.0;
+        var pt = curveOut.getPointAt(t);
+        var tgt = curveOut.getTangentAt(t);
+        item.mesh.position.copy(pt);
+        item.mesh.lookAt(pt.clone().add(tgt));
+
+        var sc = t < 0.12 ? (t / 0.12) : (t > 0.85 ? (1.0 - t) / 0.15 : 1.0);
+        item.mesh.scale.set(sc, sc, sc * 1.5);
+      });
+
+      // Particles ambient drift
+      particles.rotation.y -= 0.04 * delta;
+
+      // Smooth camera parallax
+      camera.position.x += (11 + mouseX * 2.5 - camera.position.x) * 0.05;
+      camera.position.y += (7 - mouseY * 2.5 - camera.position.y) * 0.05;
+      camera.lookAt(0, 0, 0);
+
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    return function() {
+      cancelAnimationFrame(reqId);
+      window.removeEventListener('resize', onResize);
+      container.removeEventListener('mousemove', onMouseMove);
+      container.removeEventListener('mousedown', onMouseDown);
+      window.removeEventListener('mouseup', onMouseUp);
+      container.removeEventListener('touchstart', onTouchStart);
+      container.removeEventListener('touchmove', onTouchMove);
+      window.removeEventListener('touchend', onTouchEnd);
+      renderer.dispose();
+    };
+  }, [speedMode, wireframe]);
+
+  return h`<div className="relative w-full h-[400px] md:h-[460px] rounded-3xl overflow-hidden matrix-card flex flex-col justify-between group shadow-2xl">
+    <!-- 3D Canvas Mount -->
+    <div ref=${mountRef} className="absolute inset-0 w-full h-full cursor-grab active:cursor-grabbing"></div>
+
+    <!-- Top Telemetry Header -->
+    <div className="relative z-10 p-3.5 flex items-center justify-between gap-2 pointer-events-none">
+      <div className="px-3 py-1.5 rounded-xl bg-matrix-black/90 border border-matrix-green/40 text-[11px] font-mono text-matrix-green flex items-center gap-2 backdrop-blur-md">
+        <span className="w-2 h-2 rounded-full bg-matrix-green animate-ping"></span>
+        <span className="font-bold">SERVER_NODE: ALPHA-01</span>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <div className="px-2.5 py-1 rounded-lg bg-matrix-black/90 border border-matrix-green/30 text-[10px] font-mono text-matrix-green flex items-center gap-1.5 backdrop-blur-md">
+          <span className="text-matrix-bright">↓ IN:</span>
+          <span>${stats.inSpeed} MB/s</span>
+        </div>
+        <div className="px-2.5 py-1 rounded-lg bg-matrix-black/90 border border-cyan-500/40 text-[10px] font-mono text-cyan-400 flex items-center gap-1.5 backdrop-blur-md">
+          <span className="text-cyan-300">↑ OUT:</span>
+          <span>${stats.outSpeed} MB/s</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Middle Hint (Desktop/Touch drag hint) -->
+    <div className="relative z-10 pointer-events-none self-center opacity-0 group-hover:opacity-80 transition-opacity duration-300">
+      <span className="text-[11px] font-mono text-matrix-green/80 bg-matrix-black/80 px-3 py-1 rounded-full border border-matrix-green/30">
+        ⟲ اسحب للتدوير 3D
+      </span>
+    </div>
+
+    <!-- Bottom Controls & Status Bar -->
+    <div className="relative z-10 p-3.5 flex flex-wrap items-center justify-between gap-2 bg-gradient-to-t from-matrix-black/95 via-matrix-black/80 to-transparent backdrop-blur-sm">
+      <div className="flex items-center gap-3 text-[11px] font-mono text-slate-300">
+        <span className="flex items-center gap-1">
+          <span className="text-matrix-green">REQ:</span>
+          <span className="text-white">${stats.req}/s</span>
+        </span>
+        <span className="hidden sm:inline-block text-matrix-border">|</span>
+        <span className="hidden sm:flex items-center gap-1">
+          <span className="text-matrix-green">PING:</span>
+          <span className="text-white">${stats.ping}ms</span>
+        </span>
+      </div>
+
+      <!-- Control Toggles -->
+      <div className="flex items-center gap-1.5 font-mono text-xs">
+        <button
+          onClick=${function(){
+            var next = speedMode === 'turbo' ? 'normal' : 'turbo';
+            setSpeedMode(next);
+            SoundEngine.click();
+          }}
+          className=${'px-2.5 py-1 rounded-lg border text-[11px] transition-all flex items-center gap-1.5 ' +
+            (speedMode === 'turbo' ? 'bg-matrix-green text-black font-bold border-matrix-green shadow-md shadow-matrix-green/30' : 'bg-matrix-black/80 text-slate-300 border-matrix-green/30 hover:text-white')}
+          title="تبديل سرعة تدفق البيانات"
+        >
+          <span>${speedMode === 'turbo' ? '⚡ Turbo Stream' : 'Normal Stream'}</span>
+        </button>
+
+        <button
+          onClick=${function(){
+            setWireframe(!wireframe);
+            SoundEngine.click();
+          }}
+          className=${'px-2 py-1 rounded-lg border text-[11px] transition-all ' +
+            (wireframe ? 'bg-matrix-green/20 text-matrix-green border-matrix-green' : 'bg-matrix-black/80 text-slate-400 border-matrix-green/20 hover:text-white')}
+          title="نمط الهيكل السلكي"
+        >
+          <span>Wireframe</span>
+        </button>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ========================================================
+   3D Tilt Matrix Project Card
+   ======================================================== */
+function ProjectCard(p) {
+  var pr = p.pr;
+  var cardRef = uR(null);
+  var transformS = uS('');
+  var transform = transformS[0], setTransform = transformS[1];
+  var glareS = uS({ opacity: 0 });
+  var glare = glareS[0], setGlare = glareS[1];
+
+  function onMouseMove(e) {
+    var card = cardRef.current;
+    if (!card) return;
+    var rect = card.getBoundingClientRect();
+    var x = e.clientX - rect.left;
+    var y = e.clientY - rect.top;
+    var cx = rect.width / 2;
+    var cy = rect.height / 2;
+    var rx = ((y - cy) / cy) * -8;
+    var ry = ((x - cx) / cx) * 8;
+
+    setTransform('perspective(1000px) rotateX(' + rx.toFixed(2) + 'deg) rotateY(' + ry.toFixed(2) + 'deg) scale3d(1.02, 1.02, 1.02)');
+    setGlare({
+      background: 'radial-gradient(circle at ' + x + 'px ' + y + 'px, rgba(0, 255, 102, 0.15) 0%, transparent 60%)',
+      opacity: 1
+    });
+  }
+
+  function onMouseLeave() {
+    setTransform('perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)');
+    setGlare({ opacity: 0 });
+  }
+
+  var tags = (pr.tg || '').split(',').map(function(t, i) {
+    return h`<span key=${i} className="px-2.5 py-1 text-[11px] font-mono rounded-lg bg-matrix-black border border-matrix-green/30 text-matrix-green">
+      ${t.trim()}
+    </span>`;
+  });
+
+  return h`<div
+    ref=${cardRef}
+    onMouseMove=${onMouseMove}
+    onMouseLeave=${onMouseLeave}
+    style=${{ transform: transform }}
+    className="tilt-card relative rounded-3xl overflow-hidden matrix-card p-6 flex flex-col justify-between group shadow-xl"
+  >
+    <div className="absolute inset-0 pointer-events-none transition-opacity duration-300" style=${glare}></div>
+
+    <div>
+      <div className="flex items-center justify-between gap-2 mb-4 font-mono">
+        <span className="text-[11px] text-matrix-green bg-matrix-black px-3 py-1 rounded-full border border-matrix-green/30">
+          ${pr.badge || 'Production Ready'}
+        </span>
+        <div className="w-10 h-10 rounded-2xl bg-matrix-green/10 border border-matrix-green/30 text-matrix-green flex items-center justify-center">
+          <${Ic} name="server" size=${20}/>
+        </div>
+      </div>
+
+      <h3 className="text-xl font-bold text-white mb-2 group-hover:text-matrix-green transition-colors">
+        ${pr.t}
+      </h3>
+      <p className="text-sm text-slate-300 leading-relaxed mb-4">
+        ${pr.d}
+      </p>
+
+      ${pr.metric ? h`<div className="mb-4 px-3.5 py-2 rounded-xl bg-matrix-black border border-matrix-green/20 font-mono text-xs text-matrix-green flex items-center gap-2">
+        <span className="w-2 h-2 rounded-full bg-matrix-green animate-pulse"></span>
+        <span>${pr.metric}</span>
+      </div>` : null}
+
+      <div className="flex flex-wrap gap-1.5 mb-6">
+        ${tags}
+      </div>
+    </div>
+
+    <div className="pt-4 border-t border-matrix-green/10 flex items-center gap-3 font-mono text-xs">
+      <a
+        href=${pr.demo || '#'}
+        target="_blank"
+        rel="noopener noreferrer"
+        onClick=${function(){ SoundEngine.click(); }}
+        className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-matrix-green hover:bg-matrix-bright text-black font-bold transition-all matrix-glow-btn"
+      >
+        <${Ic} name="externalLink" size=${14}/>
+        <span>معاينة حية</span>
+      </a>
+      <a
+        href=${pr.repo || '#'}
+        target="_blank"
+        rel="noopener noreferrer"
+        onClick=${function(){ SoundEngine.click(); }}
+        className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-matrix-black hover:bg-matrix-green/10 text-slate-200 border border-matrix-green/30 transition-colors"
+      >
+        <${Ic} name="github" size=${14}/>
+        <span>الكود المصدري</span>
+      </a>
+    </div>
+  </div>`;
+}
+
+/* ========================================================
+   Navigation Header
+   ======================================================== */
+var NAV = [
+  { id: 'hero', l: 'الرئيسية' },
+  { id: 'about', l: 'عنّي' },
+  { id: 'skills', l: 'المهارات' },
+  { id: 'projects', l: 'المشاريع' },
+  { id: 'journey', l: 'المسار المهني' },
+  { id: 'contact', l: 'تواصل' }
+];
+
+function Navbar(p) {
+  var act = p.act;
+  var soundOn = p.soundOn, setSoundOn = p.setSoundOn;
+
+  return h`<header className="fixed top-0 inset-x-0 z-50 py-3.5 px-4 transition-all">
+    <div className="max-w-6xl mx-auto matrix-hud rounded-2xl px-5 py-2.5 flex items-center justify-between shadow-2xl">
+      <!-- Logo / Matrix Prompt -->
+      <a href="#hero" onClick=${function(){ SoundEngine.click(); }} className="flex items-center gap-3 font-mono group">
+        <div className="w-9 h-9 rounded-xl bg-matrix-green text-black font-black text-sm flex items-center justify-center shadow-lg shadow-matrix-green/20">
+          >_
+        </div>
+        <div className="flex flex-col">
+          <span className="font-bold text-sm text-white group-hover:text-matrix-green transition-colors">
+            ${p.d.name}
+          </span>
+          <span className="text-[10px] text-matrix-green flex items-center gap-1 font-mono">
+            <span className="w-1.5 h-1.5 rounded-full bg-matrix-green animate-pulse"></span>
+            <span>SYSTEM_ONLINE</span>
+          </span>
+        </div>
+      </a>
+
+      <!-- Desktop Links -->
+      <nav className="hidden md:flex items-center gap-1 font-mono text-xs">
+        ${NAV.map(function(item) {
+          var isAct = act === item.id;
+          return h`<a
+            key=${item.id}
+            href=${'#' + item.id}
+            onClick=${function(){ SoundEngine.click(); }}
+            className=${'px-3.5 py-1.5 rounded-xl transition-all ' +
+              (isAct ? 'bg-matrix-green text-black font-bold shadow-md shadow-matrix-green/30' : 'text-slate-300 hover:text-matrix-green hover:bg-white/5')}
+          >
+            ${item.l}
+          </a>`;
+        })}
+      </nav>
+
+      <!-- Utilities -->
+      <div className="flex items-center gap-2">
+        <!-- Sound FX Synthesizer Toggle -->
+        <button
+          onClick=${function(){
+            var st = SoundEngine.toggle();
+            setSoundOn(st);
+            if(st) SoundEngine.success();
+          }}
+          title=${soundOn ? 'كتم المؤثرات الصوتية' : 'تشغيل المؤثرات الصوتية'}
+          className=${'p-2 rounded-xl border transition-colors ' +
+            (soundOn ? 'bg-matrix-green/20 border-matrix-green/40 text-matrix-green' : 'bg-white/5 border-white/10 text-slate-400 hover:text-white')}
+        >
+          <${Ic} name=${soundOn ? 'volume2' : 'volumeX'} size=${16}/>
+        </button>
+
+        <!-- Mobile Menu Trigger -->
+        <button
+          onClick=${function(){ p.setMobileOpen(!p.mobileOpen); SoundEngine.click(); }}
+          className="md:hidden p-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300"
+        >
+          <${Ic} name="menu" size=${18}/>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Drawer -->
+    ${p.mobileOpen ? h`<div className="md:hidden mt-2 max-w-6xl mx-auto matrix-hud rounded-2xl p-4 shadow-2xl">
+      <div className="grid grid-cols-2 gap-2 font-mono text-xs">
+        ${NAV.map(function(item) {
+          return h`<a
+            key=${item.id}
+            href=${'#' + item.id}
+            onClick=${function(){ p.setMobileOpen(false); SoundEngine.click(); }}
+            className="flex items-center gap-2 p-2.5 rounded-xl bg-white/5 hover:bg-matrix-green hover:text-black text-slate-200 transition-colors"
+          >
+            <span>${item.l}</span>
+          </a>`;
+        })}
+      </div>
+    </div>` : null}
+  </header>`;
+}
+
+/* ========================================================
+   Hero Section with 3D Core & Matrix Style
+   ======================================================== */
+function Hero(p) {
+  var d = p.d;
+  var r = uIV(0.1), vis = r[1];
+
+  return h`<section id="hero" className="relative min-h-screen pt-32 pb-20 flex items-center justify-center overflow-hidden z-10">
+    <div className="absolute top-1/4 -right-24 w-96 h-96 bg-matrix-green/10 rounded-full blur-[120px] pointer-events-none pulse-matrix"></div>
+
+    <div ref=${r[0]} className="max-w-6xl mx-auto px-4 w-full relative z-10">
+      <div className="grid lg:grid-cols-12 gap-12 items-center">
+        <!-- Left: Copy & Bio -->
+        <div className="lg:col-span-7 text-center lg:text-right space-y-6">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-matrix-card border border-matrix-green/40 text-matrix-green text-xs font-mono">
+            <span className="w-2 h-2 rounded-full bg-matrix-green animate-ping"></span>
+            <span>${d.statusBadge}</span>
+          </div>
+
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-white leading-tight font-mono">
+            مرحباً، أنا <span className="matrix-text">${d.name}</span>
+          </h1>
+
+          <!-- Typewriter Code Style Subtitle -->
+          <div className="text-lg md:text-xl font-bold text-matrix-green font-mono flex items-center justify-center lg:justify-start gap-2">
+            <span>> ${d.title}</span>
+            <span className="w-2.5 h-6 bg-matrix-green cursor-blink inline-block"></span>
+          </div>
+
+          <p className="text-slate-300 text-base md:text-lg leading-relaxed max-w-2xl mx-auto lg:mx-0">
+            ${d.intro}
+          </p>
+
+          <!-- Action Buttons -->
+          <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-2 font-mono text-sm">
+            <a
+              href="#projects"
+              onClick=${function(){ SoundEngine.click(); }}
+              className="px-7 py-3.5 rounded-2xl bg-matrix-green hover:bg-matrix-bright text-black font-black transition-all matrix-glow-btn flex items-center gap-2"
+            >
+              <${Ic} name="server" size=${18}/>
+              <span>استعراض المشاريع</span>
+            </a>
+
+            <a
+              href="#contact"
+              onClick=${function(){ SoundEngine.click(); }}
+              className="px-7 py-3.5 rounded-2xl bg-matrix-card hover:bg-white/10 border border-matrix-green/40 text-matrix-green font-bold transition-all flex items-center gap-2"
+            >
+              <${Ic} name="mail" size=${18}/>
+              <span>تواصل مباشر</span>
+            </a>
+          </div>
+
+          <!-- Live Metrics Grid -->
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-6 max-w-xl mx-auto lg:mx-0 font-mono">
+            ${d.st.map(function(s, idx) {
+              var count = uCT(s.v, 1400, vis);
+              return h`<div key=${idx} className="matrix-card rounded-2xl p-3.5 text-center">
+                <div className="text-2xl font-black text-matrix-green matrix-glow-text">
+                  ${count}${s.s}
+                </div>
+                <div className="text-xs text-slate-400 mt-1">
+                  ${s.l}
+                </div>
+              </div>`;
+            })}
+          </div>
+        </div>
+
+        <!-- Right: 3D Matrix Core -->
+        <div className="lg:col-span-5">
+          <${Matrix3DCore}/>
+        </div>
+      </div>
+    </div>
+  </section>`;
+}
+
+/* ========================================================
+   About Me Section
+   ======================================================== */
+function AboutSection(p) {
+  var d = p.d;
+  var r = uIV(0.15), vis = r[1];
+
+  return h`<section id="about" className="py-24 relative z-10">
+    <div ref=${r[0]} className="max-w-6xl mx-auto px-4">
+      <div className="grid lg:grid-cols-12 gap-12 items-center">
+        <!-- Photo with Matrix Border -->
+        <div className="lg:col-span-5 flex justify-center">
+          <div className="relative w-72 h-72 md:w-80 md:h-80 rounded-3xl p-1 bg-gradient-to-tr from-matrix-green via-emerald-600 to-matrix-black shadow-2xl shadow-matrix-green/20 group">
+            <div className="w-full h-full rounded-[22px] overflow-hidden bg-matrix-black flex items-center justify-center relative">
+              ${d.img ? h`<img src=${d.img} alt=${d.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"/>` : null}
+              <div className="absolute inset-0 bg-gradient-to-t from-matrix-black via-transparent to-transparent opacity-60"></div>
+            </div>
+
+            <!-- Floating Matrix Status -->
+            <div className="absolute -bottom-4 -left-4 matrix-hud px-4 py-3 rounded-2xl border border-matrix-green/40 flex items-center gap-3 shadow-xl font-mono">
+              <div className="w-9 h-9 rounded-xl bg-matrix-green text-black flex items-center justify-center font-bold">
+                <${Ic} name="code" size=${20}/>
+              </div>
+              <div className="text-right">
+                <div className="text-xs text-matrix-green font-bold">Clean Code & Architecture</div>
+                <div className="text-[10px] text-slate-400">High Reliability Systems</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bio Details -->
+        <div className="lg:col-span-7 space-y-6">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-matrix-card border border-matrix-green/30 text-matrix-green text-xs font-mono">
+            <${Ic} name="user" size=${14}/>
+            <span>نبذة شخصية</span>
+          </div>
+
+          <h2 className="text-3xl md:text-4xl font-black text-white">
+            شغف الهندسة البرمجية وجودة الكود
+          </h2>
+
+          <p className="text-slate-300 leading-relaxed text-base md:text-lg">
+            ${d.about1}
+          </p>
+
+          <p className="text-slate-300 leading-relaxed text-base md:text-lg">
+            ${d.about2}
+          </p>
+
+          <div className="space-y-3 pt-2 font-mono text-xs text-slate-300">
+            <div className="flex items-center gap-3">
+              <span className="text-matrix-green">● التعليم:</span>
+              <span>${d.edu}</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="text-matrix-green">● المقر:</span>
+              <span>${d.loc}</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="text-matrix-green">● الهدف المهني:</span>
+              <span>${d.goal}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Competency 4-Grid -->
+      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 mt-16 font-mono">
+        ${d.ss.map(function(item, idx) {
+          return h`<div key=${idx} className="matrix-card rounded-2xl p-6 hover:translate-y-[-4px] transition-all">
+            <div className="w-12 h-12 rounded-2xl bg-matrix-black border border-matrix-green/40 flex items-center justify-center mb-4 text-matrix-green">
+              <${Ic} name=${item.i} size=${22}/>
+            </div>
+            <h3 className="text-base font-bold text-white mb-2">${item.n}</h3>
+            <p className="text-xs text-slate-400 leading-relaxed">${item.d}</p>
+          </div>`;
+        })}
+      </div>
+    </div>
+  </section>`;
+}
+
+/* ========================================================
+   Skills Matrix Section
+   ======================================================== */
+function SkillsSection(p) {
+  var d = p.d;
+  var r = uIV(0.15), vis = r[1];
+
+  return h`<section id="skills" className="py-24 relative z-10">
+    <div ref=${r[0]} className="max-w-6xl mx-auto px-4">
+      <div className="text-center max-w-2xl mx-auto mb-14 space-y-3">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-matrix-card border border-matrix-green/30 text-matrix-green text-xs font-mono">
+          <${Ic} name="code" size=${14}/>
+          <span>Skills Arsenal</span>
+        </div>
+        <h2 className="text-3xl md:text-4xl font-black text-white">
+          ترسانة المهارات والتقنيات البرمجية
+        </h2>
+        <p className="text-sm text-slate-400">
+          الأدوات والأطر البرمجية التي أستخدمها في بناء منصات عالية الكفاءة والتوسع.
+        </p>
+      </div>
+
+      <!-- Skills Grid -->
+      <div className="grid md:grid-cols-2 gap-6 font-mono">
+        ${d.ts.map(function(s, idx) {
+          return h`<div key=${idx} className="matrix-card rounded-2xl p-5 space-y-3">
+            <div className="flex items-center justify-between text-sm">
+              <span className="font-bold text-white flex items-center gap-2">
+                <span className="text-matrix-green">></span>
+                ${s.n}
+              </span>
+              <span className="text-xs text-matrix-green font-bold">${s.v}%</span>
+            </div>
+
+            <!-- Matrix Progress Bar -->
+            <div className="h-2 rounded-full bg-matrix-black overflow-hidden border border-matrix-green/20">
+              <div
+                className=${'h-full rounded-full bg-matrix-green progress-fill ' + (vis ? 'active' : '')}
+                style=${{ '--w': s.v + '%', boxShadow: '0 0 10px #00ff66' }}
+              ></div>
+            </div>
+
+            <div className="text-xs text-slate-400 flex items-center justify-between">
+              <span>${s.desc}</span>
+              <span className="text-[10px] text-matrix-green bg-matrix-black px-2 py-0.5 rounded border border-matrix-green/20">${s.cat}</span>
+            </div>
+          </div>`;
+        })}
+      </div>
+    </div>
+  </section>`;
+}
+
+/* ========================================================
+   Projects Showcase Section
+   ======================================================== */
+function ProjectsSection(p) {
+  var d = p.d;
+  var r = uIV(0.1), vis = r[1];
+
+  return h`<section id="projects" className="py-24 relative z-10">
+    <div ref=${r[0]} className="max-w-6xl mx-auto px-4">
+      <div className="text-center max-w-2xl mx-auto mb-14 space-y-3">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-matrix-card border border-matrix-green/30 text-matrix-green text-xs font-mono">
+          <${Ic} name="server" size=${14}/>
+          <span>Featured Projects</span>
+        </div>
+        <h2 className="text-3xl md:text-4xl font-black text-white">
+          المشاريع الهندسية والأنظمة الإنتاجية
+        </h2>
+        <p className="text-sm text-slate-400">
+          مشاريع حقيقية متكاملة تدمج الحوسبة السحابية والتجارب ثلاثية الأبعاد. حرك الفأرة لتجربة تفاعل الـ 3D Tilt.
+        </p>
+      </div>
+
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        ${d.pj.map(function(pr, idx) {
+          return h`<${ProjectCard} key=${idx} pr=${pr}/>`;
+        })}
+      </div>
+    </div>
+  </section>`;
+}
+
+/* ========================================================
+   Career Journey & Timeline Section
+   ======================================================== */
+function CareerJourney(p) {
+  var d = p.d;
+  var r = uIV(0.15), vis = r[1];
+
+  return h`<section id="journey" className="py-24 relative z-10">
+    <div ref=${r[0]} className="max-w-4xl mx-auto px-4">
+      <div className="text-center max-w-2xl mx-auto mb-16 space-y-3">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-matrix-card border border-matrix-green/30 text-matrix-green text-xs font-mono">
+          <${Ic} name="briefcase" size=${14}/>
+          <span>Career Milestones</span>
+        </div>
+        <h2 className="text-3xl md:text-4xl font-black text-white">
+          المسيرة المهنية والإنجازات
+        </h2>
+        <p className="text-sm text-slate-400">
+          سجل التطور والخبرة المعمارية عبر السنين.
+        </p>
+      </div>
+
+      <!-- Matrix Timeline -->
+      <div className="relative border-r-2 border-matrix-green/40 mr-4 md:mr-28 pr-8 space-y-12">
+        ${d.ex.map(function(item, idx) {
+          return h`<div key=${idx} className="relative group">
+            <div className="absolute -right-[41px] top-1.5 w-5 h-5 rounded-full bg-matrix-black border-4 border-matrix-green shadow-[0_0_12px_#00ff66]"></div>
+
+            <div className="matrix-card rounded-2xl p-6 space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-2 font-mono">
+                <span className="text-xs text-matrix-green bg-matrix-black px-3 py-1 rounded-full border border-matrix-green/30">
+                  ${item.dt}
+                </span>
+                <span className="text-xs text-slate-400">
+                  checkpoint #${idx + 1}
+                </span>
+              </div>
+
+              <h3 className="text-lg font-bold text-white">${item.t}</h3>
+              <div className="text-sm font-semibold text-matrix-green font-mono">${item.o}</div>
+              <p className="text-sm text-slate-300 leading-relaxed">${item.d}</p>
+
+              ${item.tech ? h`<div className="pt-2 font-mono text-xs text-slate-400 flex items-center gap-2">
+                <span className="text-matrix-green">Stack:</span>
+                <span>${item.tech}</span>
+              </div>` : null}
+            </div>
+          </div>`;
+        })}
+      </div>
+
+      <!-- Certifications -->
+      <div className="mt-20">
+        <h3 className="text-xl font-bold text-white text-center mb-8 flex items-center justify-center gap-2 font-mono">
+          <${Ic} name="award" size=${20} className="text-matrix-green"/>
+          <span>الشهادات والاعتمادات الاحترافية</span>
+        </h3>
+
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 font-mono text-center">
+          ${d.ce.map(function(c, idx) {
+            return h`<div key=${idx} className="matrix-card rounded-2xl p-5 space-y-2">
+              <div className="w-10 h-10 mx-auto rounded-xl bg-matrix-black border border-matrix-green/30 text-matrix-green flex items-center justify-center">
+                <${Ic} name="award" size=${20}/>
+              </div>
+              <h4 className="font-bold text-sm text-white">${c.t}</h4>
+              <p className="text-xs text-matrix-green">${c.is}</p>
+              <div className="text-[11px] text-slate-400">${c.dt}</div>
+            </div>`;
+          })}
+        </div>
+      </div>
+    </div>
+  </section>`;
+}
+
+/* ========================================================
+   Contact Section
+   ======================================================== */
+function ContactSection(p) {
+  var d = p.d;
+  var fs = uS({ name: '', email: '', subject: '', message: '' });
+  var fm = fs[0], sf = fs[1];
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    if (!fm.name || !fm.email || !fm.message) {
+      p.setT({ show: true, msg: 'يرجى ملء جميع الحقول المطلوبة', type: 'error' });
+      return;
+    }
+    SoundEngine.success();
+    p.setT({ show: true, msg: 'تم إرسال رسالتك بنجاح! سأتواصل معك قريباً.', type: 'success' });
+    sf({ name: '', email: '', subject: '', message: '' });
+  }
+
+  return h`<section id="contact" className="py-24 relative z-10">
+    <div className="max-w-6xl mx-auto px-4">
+      <div className="text-center max-w-2xl mx-auto mb-16 space-y-3">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-matrix-card border border-matrix-green/30 text-matrix-green text-xs font-mono">
+          <${Ic} name="mail" size=${14}/>
+          <span>Direct Contact</span>
+        </div>
+        <h2 className="text-3xl md:text-4xl font-black text-white">
+          تواصل معي لبدء مشروع أو فرصة عمل
+        </h2>
+        <p className="text-sm text-slate-400">
+          متاح للنقاش حول المعماريات البرمجية، المشاريع التقنية، والفرص الهندسية المتقدمة.
+        </p>
+      </div>
+
+      <div className="grid lg:grid-cols-12 gap-10">
+        <!-- Form -->
+        <div className="lg:col-span-7">
+          <form onSubmit=${handleSubmit} className="matrix-card rounded-3xl p-8 space-y-5">
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-mono text-matrix-green mb-2">الاسم الكامل *</label>
+                <input
+                  type="text"
+                  value=${fm.name}
+                  onInput=${function(e){ sf(Object.assign({}, fm, { name: e.target.value })); }}
+                  placeholder="أدخل اسمك"
+                  className="w-full px-4 py-3 rounded-xl bg-matrix-black border border-matrix-green/30 text-white text-sm focus:border-matrix-green focus:outline-none transition-colors"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-mono text-matrix-green mb-2">البريد الإلكتروني *</label>
+                <input
+                  type="email"
+                  value=${fm.email}
+                  onInput=${function(e){ sf(Object.assign({}, fm, { email: e.target.value })); }}
+                  placeholder="name@example.com"
+                  dir="ltr"
+                  className="w-full px-4 py-3 rounded-xl bg-matrix-black border border-matrix-green/30 text-white text-sm focus:border-matrix-green focus:outline-none transition-colors font-mono"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-mono text-matrix-green mb-2">الموضوع</label>
+              <input
+                type="text"
+                value=${fm.subject}
+                onInput=${function(e){ sf(Object.assign({}, fm, { subject: e.target.value })); }}
+                placeholder="مشروع برمجي جديد / فرصة توظيف"
+                className="w-full px-4 py-3 rounded-xl bg-matrix-black border border-matrix-green/30 text-white text-sm focus:border-matrix-green focus:outline-none transition-colors"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-mono text-matrix-green mb-2">الرسالة *</label>
+              <textarea
+                rows="5"
+                value=${fm.message}
+                onInput=${function(e){ sf(Object.assign({}, fm, { message: e.target.value })); }}
+                placeholder="اكتب رسالتك هنا..."
+                className="w-full px-4 py-3 rounded-xl bg-matrix-black border border-matrix-green/30 text-white text-sm focus:border-matrix-green focus:outline-none transition-colors resize-none"
+              ></textarea>
+            </div>
+
+            <button
+              type="submit"
+              className="w-full py-4 rounded-xl bg-matrix-green hover:bg-matrix-bright text-black font-black text-sm transition-all matrix-glow-btn flex items-center justify-center gap-2 font-mono"
+            >
+              <${Ic} name="send" size=${16}/>
+              <span>إرسال الرسالة</span>
+            </button>
+          </form>
+        </div>
+
+        <!-- Direct Contact Details -->
+        <div className="lg:col-span-5 space-y-6">
+          <div className="matrix-card rounded-3xl p-8 space-y-6 font-mono">
+            <h3 className="text-xl font-bold text-white">معلومات التواصل المباشرة</h3>
+            <div className="space-y-4">
+              ${d.ci.map(function(item, idx) {
+                var content = item.h ? h`<a href=${item.h} target="_blank" rel="noopener noreferrer" className="text-sm text-slate-200 hover:text-matrix-green transition-colors" dir="ltr">${item.v}</a>` : h`<span className="text-sm text-slate-200">${item.v}</span>`;
+                return h`<div key=${idx} className="flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-matrix-black border border-matrix-green/40 text-matrix-green flex items-center justify-center flex-shrink-0">
+                    <${Ic} name=${item.i} size=${18}/>
+                  </div>
+                  <div>
+                    <div className="text-xs text-slate-400">${item.l}</div>
+                    ${content}
+                  </div>
+                </div>`;
+              })}
+            </div>
+
+            <div className="pt-6 border-t border-matrix-green/10 text-xs text-slate-400 space-y-2">
+              <p className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-matrix-green"></span>
+                <span>الرد السريع: في غضون ساعتين</span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>`;
+}
+
+/* ========================================================
+   Footer
+   ======================================================== */
+function Footer(p) {
+  var d = p.d;
+  return h`<footer className="py-12 border-t border-matrix-green/20 bg-matrix-black text-slate-400 text-xs font-mono relative z-10">
+    <div className="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-right">
+      <div className="flex items-center gap-2">
+        <span className="font-bold text-white">${d.name}</span>
+        <span className="text-matrix-green">—</span>
+        <span>${d.subTitle}</span>
+      </div>
+
+      <div className="flex items-center gap-4">
+        <span>© ${new Date().getFullYear()} Matrix Edition. All Rights Reserved.</span>
+        <!-- Hidden Admin Panel Button -->
+        <button
+          onClick=${p.onOpenAdmin}
+          className="p-1 rounded text-slate-600 hover:text-matrix-green transition-colors"
+          title="لوحة التحكم (Ctrl+Shift+A)"
+        >
+          <${Ic} name="settings" size=${14}/>
+        </button>
+      </div>
+    </div>
+  </footer>`;
+}
+
+/* ========================================================
+   Admin Control Panel Modal & Drawer
+   ======================================================== */
+function LoginModal(p) {
+  var uS2 = uS(''), un = uS2[0], su = uS2[1];
+  var pS2 = uS(''), pw = pS2[0], sp = pS2[1];
+  var eS2 = uS(''), er = eS2[0], se = eS2[1];
+
+  function submit(e) {
+    e.preventDefault();
+    if (!un.trim() || !pw.trim()) {
+      se('يرجى ملء جميع الحقول');
+      return;
+    }
+    hsh(un).then(function(hu) {
+      return hsh(pw).then(function(hp) {
+        if (hu === AUTH.u && hp === AUTH.p) {
+          SoundEngine.success();
+          p.onSuccess();
+        } else {
+          se('اسم المستخدم أو كلمة المرور غير صحيحة');
+        }
+      });
+    });
+  }
+
+  return h`<div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md" onClick=${function(e){ if(e.target===e.currentTarget) p.onClose(); }}>
+    <div className="w-full max-w-sm matrix-hud rounded-3xl p-8 border border-matrix-green/40 shadow-2xl text-center space-y-5">
+      <div className="w-14 h-14 mx-auto rounded-2xl bg-matrix-black border border-matrix-green/40 text-matrix-green flex items-center justify-center">
+        <${Ic} name="settings" size=${28}/>
+      </div>
+      <h3 className="text-xl font-bold text-white font-mono">لوحة تحكم الموقع</h3>
+
+      ${er ? h`<div className="p-3 rounded-xl bg-red-950/40 border border-red-500/40 text-red-400 text-xs">${er}</div>` : null}
+
+      <form onSubmit=${submit} className="space-y-4 text-right font-mono">
+        <div>
+          <label className="block text-xs text-matrix-green mb-1">اسم المستخدم</label>
+          <input
+            type="text"
+            value=${un}
+            onInput=${function(e){ su(e.target.value); }}
+            placeholder="admin"
+            dir="ltr"
+            className="w-full px-4 py-2.5 rounded-xl bg-matrix-black border border-matrix-green/30 text-white text-sm focus:border-matrix-green focus:outline-none"
+          />
+        </div>
+        <div>
+          <label className="block text-xs text-matrix-green mb-1">كلمة المرور</label>
+          <input
+            type="password"
+            value=${pw}
+            onInput=${function(e){ sp(e.target.value); }}
+            placeholder="••••••••"
+            dir="ltr"
+            className="w-full px-4 py-2.5 rounded-xl bg-matrix-black border border-matrix-green/30 text-white text-sm focus:border-matrix-green focus:outline-none"
+          />
+        </div>
+        <button
+          type="submit"
+          className="w-full py-3 rounded-xl bg-matrix-green hover:bg-matrix-bright text-black font-bold text-sm transition-all matrix-glow-btn"
+        >
+          دخول
+        </button>
+      </form>
+      <div className="text-[11px] text-slate-500 font-mono">Default: admin / admin123</div>
+    </div>
+  </div>`;
+}
+
+function AdminDrawer(p) {
+  var d = p.d, setD = p.setD;
+  var atS = uS(0), at = atS[0], setAt = atS[1];
+  var tabs = ['الرئيسية', 'عنّي', 'المهارات', 'المشاريع', 'الشهادات والمسار', 'التواصل'];
+
+  function upd(k, v) {
+    var n = JSON.parse(JSON.stringify(d));
+    n[k] = v;
+    setD(n);
+  }
+
+  function saveLocal() {
+    SS.s('siteData_v2', JSON.stringify(d));
+    SoundEngine.success();
+    p.setT({ show: true, msg: 'تم الحفظ في التخزين المحلي بنجاح!', type: 'success' });
+  }
+
+  function saveToCode() {
+    try {
+      var html = _SRC;
+      var newDef = '/*__DEF_START__*/\nvar DEF = ' + JSON.stringify(d, null, 2) + ';\n/*__DEF_END__*/';
+      html = html.replace(/\/\*__DEF_START__\*\/[\s\S]*?\/\*__DEF_END__\*\//, newDef);
+
+      fetch('/api/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ html: html })
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(j) {
+        if (j.ok) {
+          SS.s('siteData_v2', JSON.stringify(d));
+          SoundEngine.success();
+          p.setT({ show: true, msg: 'تم حفظ التعديلات مباشرة في ملف index.html!', type: 'success' });
+        } else {
+          p.setT({ show: true, msg: 'خطأ: ' + j.error, type: 'error' });
+        }
+      })
+      .catch(function() {
+        var blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url; a.download = 'index.html'; a.click();
+        URL.revokeObjectURL(url);
+        p.setT({ show: true, msg: 'تم تنزيل index.html المحدث يدوياً', type: 'success' });
+      });
+    } catch(e) {
+      p.setT({ show: true, msg: 'حدث خطأ أثناء الحفظ', type: 'error' });
+    }
+  }
+
+  return h`<div className="fixed inset-y-0 right-0 w-full max-w-md z-[110] bg-matrix-black border-r border-matrix-green/30 shadow-2xl flex flex-col font-mono">
+    <div className="p-4 border-b border-matrix-green/20 flex items-center justify-between bg-matrix-dark">
+      <div className="flex items-center gap-2 text-sm font-bold text-matrix-green">
+        <${Ic} name="settings" size=${16}/>
+        <span>لوحة التحكم بالمحتوى</span>
+      </div>
+      <div className="flex items-center gap-2">
+        <button onClick=${p.onLogout} className="px-2 py-1 rounded bg-red-500/20 text-red-400 text-xs">خروج</button>
+        <button onClick=${p.onClose} className="p-1 rounded text-slate-400 hover:text-white"><${Ic} name="x" size=${18}/></button>
+      </div>
+    </div>
+
+    <div className="p-2 border-b border-matrix-green/20 flex gap-1 overflow-x-auto bg-matrix-black">
+      ${tabs.map(function(t, i) {
+        return h`<button
+          key=${i}
+          onClick=${function(){ setAt(i); SoundEngine.click(); }}
+          className=${'admin-tab ' + (at === i ? 'active' : '')}
+        >
+          ${t}
+        </button>`;
+      })}
+    </div>
+
+    <div className="flex-1 p-4 overflow-y-auto space-y-4 text-xs">
+      ${at === 0 ? h`<div className="space-y-3">
+        <div>
+          <label className="text-slate-400 mb-1 block">الاسم</label>
+          <input className="admin-input" value=${d.name} onInput=${function(e){ upd('name', e.target.value); }}/>
+        </div>
+        <div>
+          <label className="text-slate-400 mb-1 block">المسمى الوظيفي</label>
+          <input className="admin-input" value=${d.title} onInput=${function(e){ upd('title', e.target.value); }}/>
+        </div>
+        <div>
+          <label className="text-slate-400 mb-1 block">المسمى الثانوي</label>
+          <input className="admin-input" value=${d.subTitle} onInput=${function(e){ upd('subTitle', e.target.value); }}/>
+        </div>
+        <div>
+          <label className="text-slate-400 mb-1 block">شارة الحالة</label>
+          <input className="admin-input" value=${d.statusBadge} onInput=${function(e){ upd('statusBadge', e.target.value); }}/>
+        </div>
+        <div>
+          <label className="text-slate-400 mb-1 block">رابط الصورة الشخصية</label>
+          <input className="admin-input" value=${d.img} onInput=${function(e){ upd('img', e.target.value); }}/>
+        </div>
+        <div>
+          <label className="text-slate-400 mb-1 block">النص التعريفي</label>
+          <textarea rows="4" className="admin-input resize-none" value=${d.intro} onInput=${function(e){ upd('intro', e.target.value); }}></textarea>
+        </div>
+      </div>` : null}
+
+      ${at === 1 ? h`<div className="space-y-3">
+        <div>
+          <label className="text-slate-400 mb-1 block">نبذة الفقرة 1</label>
+          <textarea rows="4" className="admin-input resize-none" value=${d.about1} onInput=${function(e){ upd('about1', e.target.value); }}></textarea>
+        </div>
+        <div>
+          <label className="text-slate-400 mb-1 block">نبذة الفقرة 2</label>
+          <textarea rows="4" className="admin-input resize-none" value=${d.about2} onInput=${function(e){ upd('about2', e.target.value); }}></textarea>
+        </div>
+        <div>
+          <label className="text-slate-400 mb-1 block">التعليم</label>
+          <input className="admin-input" value=${d.edu} onInput=${function(e){ upd('edu', e.target.value); }}/>
+        </div>
+        <div>
+          <label className="text-slate-400 mb-1 block">الموقع</label>
+          <input className="admin-input" value=${d.loc} onInput=${function(e){ upd('loc', e.target.value); }}/>
+        </div>
+      </div>` : null}
+
+      ${at === 2 ? h`<div className="space-y-3">
+        <div className="text-matrix-green font-bold mb-2">قائمة المهارات التقنية</div>
+        ${d.ts.map(function(s, idx) {
+          return h`<div key=${idx} className="p-2.5 rounded-xl bg-white/5 space-y-1.5 border border-white/5">
+            <div className="flex gap-2">
+              <input className="admin-input flex-1" value=${s.n} onInput=${function(e){
+                var n = JSON.parse(JSON.stringify(d)); n.ts[idx].n = e.target.value; setD(n);
+              }}/>
+              <input type="number" className="admin-input w-16 text-center" value=${s.v} onInput=${function(e){
+                var n = JSON.parse(JSON.stringify(d)); n.ts[idx].v = parseInt(e.target.value) || 0; setD(n);
+              }}/>
+            </div>
+          </div>`;
+        })}
+      </div>` : null}
+
+      ${at === 3 ? h`<div className="space-y-3">
+        <div className="text-matrix-green font-bold mb-2">المشاريع (${d.pj.length})</div>
+        ${d.pj.map(function(pj, idx) {
+          return h`<div key=${idx} className="p-3 rounded-xl bg-white/5 space-y-2 border border-white/5 font-mono">
+            <input className="admin-input font-bold" value=${pj.t} placeholder="عنوان المشروع" onInput=${function(e){
+              var n = JSON.parse(JSON.stringify(d)); n.pj[idx].t = e.target.value; setD(n);
+            }}/>
+            <textarea rows="2" className="admin-input resize-none text-xs" value=${pj.d} placeholder="وصف المشروع" onInput=${function(e){
+              var n = JSON.parse(JSON.stringify(d)); n.pj[idx].d = e.target.value; setD(n);
+            }}></textarea>
+            <input className="admin-input text-xs" value=${pj.tg} placeholder="التقنيات" onInput=${function(e){
+              var n = JSON.parse(JSON.stringify(d)); n.pj[idx].tg = e.target.value; setD(n);
+            }}/>
+            <div className="grid grid-cols-2 gap-2">
+              <input className="admin-input text-xs" value=${pj.demo || ''} placeholder="رابط المعاينة (Demo URL)" onInput=${function(e){
+                var n = JSON.parse(JSON.stringify(d)); n.pj[idx].demo = e.target.value; setD(n);
+              }}/>
+              <input className="admin-input text-xs" value=${pj.repo || ''} placeholder="رابط الكود (Repo URL)" onInput=${function(e){
+                var n = JSON.parse(JSON.stringify(d)); n.pj[idx].repo = e.target.value; setD(n);
+              }}/>
+            </div>
+          </div>`;
+        })}
+      </div>` : null}
+
+      ${at === 4 ? h`<div className="space-y-3">
+        <div className="text-matrix-green font-bold mb-2">الشهادات والمسار المهني</div>
+        ${d.ex.map(function(ex, idx) {
+          return h`<div key=${idx} className="p-3 rounded-xl bg-white/5 space-y-2 border border-white/5">
+            <input className="admin-input font-bold" value=${ex.t} onInput=${function(e){
+              var n = JSON.parse(JSON.stringify(d)); n.ex[idx].t = e.target.value; setD(n);
+            }}/>
+            <input className="admin-input" value=${ex.o} onInput=${function(e){
+              var n = JSON.parse(JSON.stringify(d)); n.ex[idx].o = e.target.value; setD(n);
+            }}/>
+          </div>`;
+        })}
+      </div>` : null}
+
+      ${at === 5 ? h`<div className="space-y-3">
+        <div className="text-matrix-green font-bold mb-2">بيانات التواصل</div>
+        ${d.ci.map(function(c, idx) {
+          return h`<div key=${idx} className="space-y-1">
+            <label className="text-slate-400 text-[11px]">${c.l}</label>
+            <input className="admin-input" value=${c.v} onInput=${function(e){
+              var n = JSON.parse(JSON.stringify(d)); n.ci[idx].v = e.target.value; setD(n);
+            }}/>
+          </div>`;
+        })}
+      </div>` : null}
+    </div>
+
+    <div className="p-4 border-t border-matrix-green/20 bg-matrix-dark flex gap-2">
+      <button onClick=${saveLocal} className="flex-1 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-bold text-xs transition-colors">
+        حفظ مؤقت
+      </button>
+      <button onClick=${saveToCode} className="flex-1 py-2.5 rounded-xl bg-matrix-green hover:bg-matrix-bright text-black font-bold text-xs transition-colors matrix-glow-btn">
+        حفظ في الكود (index.html)
+      </button>
+    </div>
+  </div>`;
+}
+
+/* ========================================================
+   Root Application
+   ======================================================== */
+function App() {
+  var soundS = uS(false);
+  var soundOn = soundS[0], setSoundOn = soundS[1];
+  var mobileOpenS = uS(false);
+  var mobileOpen = mobileOpenS[0], setMobileOpen = mobileOpenS[1];
+  var actS = uS('hero');
+  var act = actS[0], setAct = actS[1];
+  var toastS = uS({ show: false, msg: '', type: 'success' });
+  var toast = toastS[0], setToast = toastS[1];
+
+  var loginOpenS = uS(false);
+  var loginOpen = loginOpenS[0], setLoginOpen = loginOpenS[1];
+  var adminOpenS = uS(false);
+  var adminOpen = adminOpenS[0], setAdminOpen = adminOpenS[1];
+
+  var dataS = uS(function() {
+    var base = JSON.parse(JSON.stringify(DEF));
+    try {
+      var saved = SS.g('siteData_v2');
+      if (saved) {
+        var obj = JSON.parse(saved);
+        if (obj && obj._v === base._v) {
+          for (var k in base) {
+            if (!(k in obj)) obj[k] = base[k];
+          }
+          return obj;
+        }
+      }
+    } catch(e) {}
+    return base;
+  });
+  var data = dataS[0], setData = dataS[1];
+
+  // Active section scroll tracking
+  uE(function() {
+    var sections = NAV.map(function(item) { return document.getElementById(item.id); }).filter(Boolean);
+    var obs = new IntersectionObserver(function(entries) {
+      entries.forEach(function(e) {
+        if (e.isIntersecting) setAct(e.target.id);
+      });
+    }, { rootMargin: '-25% 0px -65% 0px' });
+    sections.forEach(function(s) { obs.observe(s); });
+    return function() { obs.disconnect(); };
+  }, []);
+
+  // Admin Shortcut (Ctrl+Shift+A)
+  uE(function() {
+    function onKeyDown(e) {
+      if (e.ctrlKey && e.shiftKey && (e.key === 'a' || e.key === 'A')) {
+        e.preventDefault();
+        setLoginOpen(true);
+      }
+    }
+    window.addEventListener('keydown', onKeyDown);
+    return function() { window.removeEventListener('keydown', onKeyDown); };
+  }, []);
+
+  return h`<div className="min-h-screen text-slate-100 relative">
+    <!-- Matrix Digital Rain Canvas Background -->
+    <${MatrixRain}/>
+
+    <!-- Navbar -->
+    <${Navbar}
+      d=${data}
+      soundOn=${soundOn}
+      setSoundOn=${setSoundOn}
+      act=${act}
+      mobileOpen=${mobileOpen}
+      setMobileOpen=${setMobileOpen}
+    />
+
+    <!-- Main Content -->
+    <main className="relative z-10">
+      <${Hero} d=${data}/>
+      <${AboutSection} d=${data}/>
+      <${SkillsSection} d=${data}/>
+      <${ProjectsSection} d=${data}/>
+      <${CareerJourney} d=${data}/>
+      <${ContactSection} d=${data} setT=${setToast}/>
+    </main>
+
+    <!-- Footer -->
+    <${Footer} d=${data} onOpenAdmin=${function(){ setLoginOpen(true); }}/>
+
+    <!-- Admin Login Modal -->
+    ${loginOpen ? h`<${LoginModal}
+      onClose=${function(){ setLoginOpen(false); }}
+      onSuccess=${function(){ setLoginOpen(false); setAdminOpen(true); }}
+    />` : null}
+
+    <!-- Admin Drawer -->
+    ${adminOpen ? h`<${AdminDrawer}
+      d=${data}
+      setD=${setData}
+      setT=${setToast}
+      onClose=${function(){ setAdminOpen(false); }}
+      onLogout=${function(){ setAdminOpen(false); }}
+    />` : null}
+
+    <!-- Toast Notifications -->
+    ${toast.show ? h`<div className="fixed bottom-6 left-6 z-[150] px-5 py-3 rounded-2xl matrix-hud border border-matrix-green/40 text-matrix-green text-xs font-mono shadow-2xl flex items-center gap-2">
+      <${Ic} name="checkCircle" size=${16}/>
+      <span>${toast.msg}</span>
+    </div>` : null}
+  </div>`;
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(h`<${App}/>`);
+</script>
+</body>
+</html>
